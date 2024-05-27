@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        form {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #9f28a7;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { 
+            background-color: #9f28a7;
+        }
+        .property-list {
+            margin: 20px 0;
+        }
+        .property-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Basic Application</h1>
+        
+        <!-- Registration Form -->
+        <h2>Register</h2>
+        <form id="registerForm">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" required>
+            
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" required>
+            
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="phoneNumber">Phone Number</label>
+            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" required />
+            
+            <label for="userType">Want to Register as :</label>
+            <select id="userType" name="userType" required>
+                <option value="buyer">Buyer</option>
+                <option value="seller">Seller</option>
+            </select>
+            
+            <button type="submit">Register</button>
+        </form>
+        
+        <!-- Seller Flow -->
+        <div id="sellerFlow" class="hidden">
+            <h2>Post Property</h2>
+            <form id="postPropertyForm">
+                <label for="propertyTitle">Property Title</label>
+                <input type="text" id="propertyTitle" name="propertyTitle" required>
+                
+                <label for="propertyDescription">Property Description</label>
+                <textarea id="propertyDescription" name="propertyDescription" required></textarea>
+                
+                <label for="propertyType">Property Type</label>
+                <input type="text" id="propertyType" name="propertyType" required>
+                
+                <label for="propertyAddress">Address</label>
+                <input type="text" id="propertyAddress" name="propertyAddress" required>
+                
+                <label for="propertyCity">City</label>
+                <input type="text" id="propertyCity" name="propertyCity" required>
+                
+                <label for="propertyState">State</label>
+                <input type="text" id="propertyState" name="propertyState" required>
+                
+                <label for="propertyZip">Zip Code</label>
+                <input type="text" id="propertyZip" name="propertyZip" required>
+                
+                <label for="propertyCountry">Country</label>
+                <input type="text" id="propertyCountry" name="propertyCountry" required>
+                
+                <label for="propertyPrice">Price</label>
+                <input type="number" id="propertyPrice" name="propertyPrice" required>
+                
+                <label for="propertyArea">Area (sq ft)</label>
+                <input type="number" id="propertyArea" name="propertyArea" required>
+                
+                <label for="propertyBedrooms">Number of Bedrooms</label>
+                <input type="number" id="propertyBedrooms" name="propertyBedrooms" required>
+                
+                <label for="propertyBathrooms">Number of Bathrooms</label>
+                <input type="number" id="propertyBathrooms" name="propertyBathrooms" required>
+                
+                <label for="propertyHospitals">Nearby Hospitals</label>
+                <input type="text" id="propertyHospitals" name="propertyHospitals">
+                
+                <label for="propertyColleges">Nearby Colleges</label>
+                <input type="text" id="propertyColleges" name="propertyColleges">
+                
+                <button type="submit">Post Property</button>
+            </form>
+            
+            <h2>My Properties</h2>
+            <div class="property-list" id="sellerProperties">
+                <!-- Dynamically populated list of seller's properties -->
+            </div>
+        </div>
+        
+        <!-- Buyer Flow -->
+        <div id="buyerFlow" class="hidden">
+            <h2>Available Properties</h2>
+            <div>
+                <label for="filterCity">City</label>
+                <input type="text" id="filterCity" name="filterCity">
+                
+                <label for="filterPrice">Max Price</label>
+                <input type="number" id="filterPrice" name="filterPrice">
+                
+                <label for="filterBedrooms">Min Bedrooms</label>
+                <input type="number" id="filterBedrooms" name="filterBedrooms">
+                
+                <label for="filterBathrooms">Min Bathrooms</label>
+                <input type="number" id="filterBathrooms" name="filterBathrooms">
+                
+                <button onclick="applyFilters()">Apply Filters</button>
+            </div>
+            <div class="property-list" id="buyerProperties">
+                <!-- Dynamically populated list of properties -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const user = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phoneNumber: document.getElementById('phoneNumber').value,
+        userType: document.getElementById('userType').value
+    };
+
+    fetch('http://localhost:8080/api/users/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(user)
+    })
+    .then(response => response.json())
+    .then(data => {
+        const userType = data.userType;
+        if (userType === 'seller') {
+            document.getElementById('sellerFlow').classList.remove('hidden');
+            document.getElementById('buyerFlow').classList.add('hidden');
+        } else {
+            document.getElementById('sellerFlow').classList.add('hidden');
+            document.getElementById('buyerFlow').classList.remove('hidden');
+        }
+    });
+});
+
+document.getElementById('postPropertyForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const property = {
+        title: document.getElementById('propertyTitle').value,
+        description: document.getElementById('propertyDescription').value,
+        type: document.getElementById('propertyType').value,
+        address: document.getElementById('propertyAddress').value,
+        city: document.getElementById('propertyCity').value,
+        state: document.getElementById('propertyState').value,
+        zip: document.getElementById('propertyZip').value,
+        country: document.getElementById('propertyCountry').value,
+        price: document.getElementById('propertyPrice').value,
+        area: document.getElementById('propertyArea').value,
+        bedrooms: document.getElementById('propertyBedrooms').value,
+        bathrooms: document.getElementById('propertyBathrooms').value,
+        hospitals: document.getElementById('propertyHospitals').value,
+        colleges: document.getElementById('propertyColleges').value,
+        sellerId: 1 // Replace with actual seller ID after login implementation
+    };
+
+    fetch('http://localhost:8080/api/properties/post', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(property)
+    })
+    .then(response => response.json())
+    .then(data => {
+        const propertyList = document.getElementById('sellerProperties');
+        const propertyItem = document.createElement('div');
+        propertyItem.classList.add('property-item');
+        propertyItem.innerHTML = `
+            <h3>${data.title}</h3>
+            <p>${data.description}</p>
+            <button onclick="updateProperty(this)">Update</button>
+            <button onclick="deleteProperty(this)">Delete</button>
+        `;
+        propertyList.appendChild(propertyItem);
+    });
+});
+
+function applyFilters() {
+    const city = document.getElementById('filterCity').value;
+    const maxPrice = document.getElementById('filterPrice').value;
+    const minBedrooms = document.getElementById('filterBedrooms').value;
+    const minBathrooms = document.getElementById('filterBathrooms').value;
+
+    fetch(`http://localhost:8080/api/properties/search?city=${city}&maxPrice=${maxPrice}&minBedrooms=${minBedrooms}&minBathrooms=${minBathrooms}`)
+        .then(response => response.json())
+        .then(properties => {
+            const propertyList = document.getElementById('buyerProperties');
+            propertyList.innerHTML = ''; // Clear previous results
+
+            properties.forEach(property => {
+                const propertyItem = document.createElement('div');
+                propertyItem.classList.add('property-item');
+                propertyItem.innerHTML = `
+                    <h3>${property.title}</h3>
+                    <p>${property.description}</p>
+                    <button onclick="showSellerDetails('${property.sellerDetails}')">I'm Interested</button>
+                `;
+                propertyList.appendChild(propertyItem);
+            });
+        });
+}
+
+function showSellerDetails(details) {
+    alert(details);
+}
+
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userType = document.getElementById('userType').value;
+            if (userType === 'seller') {
+                document.getElementById('sellerFlow').classList.remove('hidden');
+                document.getElementById('buyerFlow').classList.add('hidden');
+            } else {
+                document.getElementById('sellerFlow').classList.add('hidden');
+                document.getElementById('buyerFlow').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('postPropertyForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const propertyList = document.getElementById('sellerProperties');
+            const propertyTitle = document.getElementById('propertyTitle').value;
+            const propertyDescription = document.getElementById('propertyDescription').value;
+            
+            const propertyItem = document.createElement('div');
+            propertyItem.classList.add('property-item');
+            propertyItem.innerHTML = `
+                <h3>${propertyTitle}</h3>
+                <p>${propertyDescription}</p>
+                <button onclick="updateProperty(this)">Update</button>
+                <button onclick="deleteProperty(this)">Delete</button>
+            `;
+            propertyList.appendChild(propertyItem);
+        });
+
+        function updateProperty(button) {
+            // Implementation for updating property
+            alert('Update Property - Functionality to be implemented');
+        }
+
+        function deleteProperty(button) {
+            // Implementation for deleting property
+            button.parentElement.remove();
+        }
+
+        function applyFilters() {
+            const city = document.getElementById('filterCity').value;
+            const maxPrice = document.getElementById('filterPrice').value;
+            const minBedrooms = document.getElementById('filterBedrooms').value;
+            const minBathrooms = document.getElementById('filterBathrooms').value;
+
+            const propertyList = document.getElementById('buyerProperties');
+            propertyList.innerHTML = ''; // Clear previous results
+
+            // Placeholder properties data
+            const properties = [
+                {
+                    title: 'Modern Apartment',
+                    description: 'A beautiful apartment in the city center.',
+                    city: 'New York',
+                    price: 300000,
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    sellerDetails: 'Contact: John Doe, johndoe@example.com'
+                },
+                {
+                    title: 'Spacious House',
+                    description: 'A spacious house in the suburbs.',
+                    city: 'Los Angeles',
+                    price: 500000,
+                    bedrooms: 4,
+                    bathrooms: 3,
+                    sellerDetails: 'Contact: Jane Doe, janedoe@example.com'
+                }
+            ];
+
+            properties.forEach(property => {
+                if ((city && property.city !== city) ||
+                    (maxPrice && property.price > maxPrice) ||
+                    (minBedrooms && property.bedrooms < minBedrooms) ||
+                    (minBathrooms && property.bathrooms < minBathrooms)) {
+                    return;
+                }
+
+                const propertyItem = document.createElement('div');
+                propertyItem.classList.add('property-item');
+                propertyItem.innerHTML = `
+                    <h3>${property.title}</h3>
+                    <p>${property.description}</p>
+                    <button onclick="showSellerDetails('${property.sellerDetails}')">I'm Interested</button>
+                `;
+                propertyList.appendChild(propertyItem);
+            });
+        }
+
+        function showSellerDetails(details) {
+            alert(details);
+        }
+    </script>
+</body>
+</html>
